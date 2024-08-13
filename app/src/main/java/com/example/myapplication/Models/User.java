@@ -4,8 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class User {
 
-    @SerializedName("id")
-    private String id;
+
 
     @SerializedName("name")
     private String name;
@@ -13,21 +12,33 @@ public class User {
     @SerializedName("email")
     private String email;
 
-    @SerializedName("age")
-    private int age;
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @SerializedName("password")
+    private String password;
 
     @SerializedName("location")
     private String location;
 
-    // Getter for id
-    public String getId() {
-        return id;
+    @SerializedName("role")
+
+    private String role;
+
+    public String getRole() {
+        return role;
     }
 
-    // Setter for id
-    public void setId(String id) {
-        this.id = id;
+    public void setRole(String role) {
+        this.role = role;
     }
+
+    // Getter for id
 
     // Getter for name
     public String getName() {
@@ -50,14 +61,7 @@ public class User {
     }
 
     // Getter for age
-    public int getAge() {
-        return age;
-    }
 
-    // Setter for age
-    public void setAge(int age) {
-        this.age = age;
-    }
 
     // Getter for location
     public String getLocation() {
@@ -69,11 +73,12 @@ public class User {
         this.location = location;
     }
 
-    public User(String id, String name, String email, int age, String location) {
-        this.id = id;
+    public User( String name, String email, String password,String location,String role) {
+
         this.name = name;
         this.email = email;
-        this.age = age;
+        this.password = password;
         this.location = location;
+        this.role = role;
     }
 }

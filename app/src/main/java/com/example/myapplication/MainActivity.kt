@@ -1,104 +1,44 @@
 package com.example.myapplication
-
+import AdminDashboard
+import LoginScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.example.myapplication.Models.User
-import com.example.myapplication.Models.VCWeather
-import com.example.myapplication.Retrofit.RetrofitClient
-import com.example.myapplication.ui.theme.MyApplicationTheme
-import kotlinx.coroutines.launch
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.example.myapplication.authentication.HomeScreen
+import com.example.myapplication.authentication.RegisterScreen
+import com.example.myapplication.authentication.WelcomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            MyAppContent()
+            MyAppNavigation()
         }
     }
+}
 
-    @Composable
-    fun MyAppContent() {
-        var user by remember { mutableStateOf<User?>(null) }
-        var showDetails by remember { mutableStateOf(false) }
-        var showData by remember { mutableStateOf(false) }
-        var weatherData by remember { mutableStateOf<VCWeather?>(null) }
+@Composable
+fun MyAppNavigation() {
+    val navController = rememberNavController()
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Button(onClick = { showData = true }) {
-                Text(text = "View Weather Data")
-            }
-
-            // Display weather data when showData is true
-            if (showData) {
-                WeatherData(data = weatherData)
-            }
+    NavHost(navController = navController, startDestination = "welcome_screen") {
+        composable("welcome_screen"){ WelcomeScreen(navController) }
+        composable("login_screen") { LoginScreen(navController) }
+        composable("admin_dashboard"){AdminDashboard(navController)}
+        composable(route = "home_screen/{email}",
+            arguments = listOf(navArgument("email"){type = NavType.StringType})){
+            backStackEntry -> val email = backStackEntry.arguments?.getString("email")
+            HomeScreen(email = email)
         }
 
-        LaunchedEffect(showData) {
-            if (showData) {
-                try {
-                    // Fetch weather data from API
-                    val fetchedWeather = fetchData()
-                    weatherData = fetchedWeather
-                } catch (e: Exception) {
-                    // Handle error, e.g., show error message
-                    weatherData = null
-                }
-            }
-        }
-    }
+        composable("register_screen") { RegisterScreen(navController) }
 
-    @Composable
-    fun Greeting(name: String) {
-        Text(text = "Hello $name!")
-    }
-
-    @Composable
-    fun UserDetails(user: User) {
-        Column {
-            Text(text = "Name: ${user.name}")
-            Text(text = "Email: ${user.email}")
-            Text(text = "Age: ${user.age}")
-            Text(text = "Location: ${user.location}")
-
-            Button(onClick = { /* Hide details */ }) {
-                Text(text = "Hide Details")
-            }
-        }
-    }
-
-    @Composable
-    fun WeatherData(data: VCWeather?) {
-        data?.let {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "Address: ${it.address}")
-                Text(text = "Temperature: ${it.temperature}")
-                Text(text = "Humidity: ${it.humidity}")
-            }
-        }
-    }
-
-    private suspend fun fetchUser(userId: String): User {
-        return RetrofitClient.getApiService().getUser(userId)
-    }
-
-    private suspend fun fetchData(): VCWeather {
-        return RetrofitClient.getVCAPI().getWeather()
     }
 }

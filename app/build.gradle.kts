@@ -70,5 +70,11 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
 
+    val navVersion = "2.7.7"
+
+    implementation(libs.androidx.navigation.compose)
+    implementation( libs.coil.compose)
+    implementation(libs.coil.gif)
+
 
 }
