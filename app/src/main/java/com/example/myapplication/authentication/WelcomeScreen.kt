@@ -82,14 +82,7 @@ fun WelcomeScreen(navController: NavController){
         ) {
             Text("Go Offline")
         }
-        Button(
-            onClick = {
-                navController.navigate("admin_dashboard") // Navigate to offline mode
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Admin Mode?")
-        }
+
     }
 
 }

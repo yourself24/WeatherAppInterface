@@ -1,3 +1,4 @@
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,19 +12,40 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import com.example.myapplication.Models.UpdatedUser
+import com.example.myapplication.Retrofit.RetrofitClient
 import kotlinx.coroutines.launch
+import com.example.myapplication.Models.User
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminDashboard(navController: NavController) {
     var selectedUser by remember { mutableStateOf<User?>(null) }
     var drawerState = rememberDrawerState(DrawerValue.Closed)
+    var userList by remember{ mutableStateOf<List<User>>(emptyList()) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            try {
+                userList = RetrofitClient.getApiService().getAllUsers()
+            }
+            catch(e:Exception){
+                Toast.makeText(context,"Failed to load users because of: ${e.message}",Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -39,7 +61,10 @@ fun AdminDashboard(navController: NavController) {
                             IconButton(onClick = {
                                 scope.launch { drawerState.open() }
                             }) {
-                                Icon(imageVector = Icons.AutoMirrored.Sharp.ExitToApp, contentDescription = "Menu")
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Sharp.ExitToApp,
+                                    contentDescription = "Menu"
+                                )
                             }
                         },
                         actions = {
@@ -47,7 +72,10 @@ fun AdminDashboard(navController: NavController) {
                                 // Handle logout logic
                                 navController.navigate("login_screen")
                             }) {
-                                Icon(imageVector = Icons.AutoMirrored.Sharp.ExitToApp, contentDescription = "Logout")
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Sharp.ExitToApp,
+                                    contentDescription = "Logout"
+                                )
                             }
                         }
                     )
@@ -61,8 +89,9 @@ fun AdminDashboard(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         // Users List
+
                         UserList(
-                            users = getUsers(), // Replace with actual user data source
+                            users = userList, // Replace with actual user data source
                             onUserSelected = { user ->
                                 selectedUser = user
                             }
@@ -71,11 +100,16 @@ fun AdminDashboard(navController: NavController) {
                         Spacer(modifier = Modifier.width(16.dp))
 
                         // User Details
-                        selectedUser?.let {
-                            UserDetails(user = it, onSave = { updatedUser ->
-                                // Update user logic here
-                                selectedUser = null
-                            })
+                        selectedUser?.let {user->UserEditDialog(user = user,
+                            onDismiss = {selectedUser= null},
+
+                                onSave= { selectedUser= null
+
+                                }
+
+
+                            )
+
                         }
                     }
                 }
@@ -127,41 +161,77 @@ fun UserList(users: List<User>, onUserSelected: (User) -> Unit) {
 }
 
 @Composable
-fun UserDetails(user: User, onSave: (User) -> Unit) {
+fun UserEditDialog(user: User, onDismiss: () -> Unit, onSave: (User) -> Unit) {
     var name by remember { mutableStateOf(user.name) }
     var email by remember { mutableStateOf(user.email) }
     var location by remember { mutableStateOf(user.location) }
+    var role by remember { mutableStateOf(user.role) }
+    var id by remember { mutableStateOf(user.id) }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            TextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(value = location, onValueChange = { location = it }, label = { Text("Location") })
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
-            Spacer(modifier = Modifier.height(16.dp))
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties()) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                TextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(value = id.toString(), onValueChange = { id = it.toLongOrNull() }, label = { Text("UID") })
+                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(value = role, onValueChange = { role = it }, label = { Text("Role") })
+                TextField(
+                    value = location,
+                    onValueChange = { location = it },
+                    label = { Text("Location") })
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Button(onClick = {
-                onSave(user.copy(name = name, email = email, location = location))
-            }) {
-                Text("Save Changes")
+
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        coroutineScope.launch {
+                            try{
+                                val updatedUser = UpdatedUser(
+                                     name,
+                                    email,
+                                    location,
+                                    role
+
+
+                                )
+                                val response = RetrofitClient.getApiService().updateUser(id,updatedUser)
+
+                            }
+                            catch(e:Exception){
+                                Toast.makeText(context,"Failed to update user!Error: ${e.message}",Toast.LENGTH_LONG).show()
+
+                            }
+                        }
+
+                    }
+                    ) {
+                        Text("Save Changes")
+                    }
+                }
+
+
             }
         }
     }
 }
 
-data class User(val id: String, val name: String, val email: String, val location: String)
 
-fun getUsers(): List<User> {
-    return listOf(
-        User(id = "1", name = "John Doe", email = "john.doe@example.com", location = "New York"),
-        User(id = "2", name = "Jane Smith", email = "jane.smith@example.com", location = "Los Angeles"),
-        // Add more users here
-    )
-}
+

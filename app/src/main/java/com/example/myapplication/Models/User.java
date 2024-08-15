@@ -5,7 +5,8 @@ import com.google.gson.annotations.SerializedName;
 public class User {
 
 
-
+    @SerializedName("id")
+    private Long id;
     @SerializedName("name")
     private String name;
 
@@ -50,6 +51,7 @@ public class User {
         this.name = name;
     }
 
+    public Long getId(){return id;};
     // Getter for email
     public String getEmail() {
         return email;

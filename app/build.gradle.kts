@@ -69,12 +69,17 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
+    implementation (libs.androidx.foundation)
 
     val navVersion = "2.7.7"
 
     implementation(libs.androidx.navigation.compose)
     implementation( libs.coil.compose)
     implementation(libs.coil.gif)
+    implementation (libs.accompanist.pager)
+    implementation (libs.accompanist.pager.indicators)
+    implementation (libs.play.services.location)
+
 
 
 }

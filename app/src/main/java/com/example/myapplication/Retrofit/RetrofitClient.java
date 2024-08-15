@@ -1,18 +1,27 @@
 package com.example.myapplication.Retrofit;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
 
-    private static final String BASE_URL = "http://192.168.1.135:8080/"; // Replace with your server's IP and port
+    private static final String BASE_URL = "http://192.168.1.208:8080/"; // Replace with your server's IP and port
 
     private static Retrofit retrofit = null;
+
+    // Method to create an OkHttpClient with the CookieJar
+    private static OkHttpClient getOkHttpClient() {
+        return new OkHttpClient.Builder()
+                .cookieJar(new SessionCookieJar()) // Attach the custom CookieJar
+                .build();
+    }
 
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(getOkHttpClient()) // Use the custom OkHttpClient
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
@@ -22,5 +31,8 @@ public class RetrofitClient {
     public static ApiService getApiService() {
         return getClient().create(ApiService.class);
     }
-    public static VCApIService getVCAPI(){return getClient().create(VCApIService.class);}
+
+    public static VCApIService getVCAPI() {
+        return getClient().create(VCApIService.class);
+    }
 }

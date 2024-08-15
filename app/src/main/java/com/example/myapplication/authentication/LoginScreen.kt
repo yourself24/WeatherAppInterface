@@ -26,15 +26,19 @@ import coil.size.Size
 import com.example.myapplication.Models.LoginUser
 import com.example.myapplication.R
 import com.example.myapplication.Retrofit.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 @Composable
 fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     // Animation states
     val animatedVisibilityState = remember { mutableStateOf(false) }
@@ -140,8 +144,20 @@ fun LoginScreen(navController: NavController) {
                     ) {
                         if (response.isSuccessful) {
                             val responseBody = response.body()
-                            Toast.makeText(context, "Login successful!", Toast.LENGTH_LONG).show()
-                            navController.navigate("home_screen/${email.text}")
+                            scope.launch {
+
+                                var foundUser = RetrofitClient.getApiService().getUserByEmail(email.text)
+                                if(foundUser.role=="admin"){
+                                    navController.navigate("admin_dashboard")
+
+                                }
+                                else{
+                                    Toast.makeText(context, "Login successful!", Toast.LENGTH_LONG).show()
+                                    navController.navigate("user_dashboard")
+                                }
+                            }
+
+
                         } else {
                             Toast.makeText(
                                 context,
@@ -163,7 +179,19 @@ fun LoginScreen(navController: NavController) {
         ) {
             Text("Login")
         }
-
+        TextButton(
+            onClick = { navController.navigate("register_screen") },
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            Text(
+                text = "Forgot Password?",
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         TextButton(
             onClick = { navController.navigate("register_screen") },
             modifier = Modifier.padding(vertical = 8.dp)
@@ -171,7 +199,7 @@ fun LoginScreen(navController: NavController) {
             Text(
                 text = "New Here? Create an Account",
                 color = MaterialTheme.colorScheme.primary,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
