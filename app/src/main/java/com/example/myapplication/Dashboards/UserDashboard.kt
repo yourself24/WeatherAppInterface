@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
@@ -14,19 +15,54 @@ import com.example.myapplication.Retrofit.RetrofitClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
-
 @SuppressLint("MissingPermission")
+
 @Composable
-fun UserDashboard(navController: NavController) {
+fun UserDashboard(navController: NavController,email:String) {
+    var sensorData by remember { mutableStateOf("Waiting for data...") }
     var weatherDataList by remember { mutableStateOf<List<WeatherProviderData>>(emptyList()) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val fusedLocationClient: FusedLocationProviderClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
     }
+    val deviceAddress = "00:24:01:00:0A:DC" // Replace with your device address
 
     var userLocation by remember { mutableStateOf<Location?>(null) }
+    val bluetoothHandler = remember { BluetoothHandler(context, deviceAddress) }
+    Log.d("Email",email)
+    // Function to refresh the dashboard with new data
+    fun refreshDashboardWithBluetoothData(data: String) {
+        val parsedSensorData = parseSensorData(data)
+        scope.launch {
+        parsedSensorData.address = userLocation?.let { RetrofitClient.getVCAPI().getExactLocation(it.longitude, it.latitude) }
+        }
+        if(weatherDataList.size > 5 ) {
+            weatherDataList = weatherDataList.dropLast(1)  + parsedSensorData
 
+        }
+        else{
+            weatherDataList = weatherDataList + parsedSensorData
+        }
+        }
+
+    // Connect to the Bluetooth device and parse sensor data
+    LaunchedEffect(Unit) {
+        if (bluetoothHandler.connect()) {
+
+            bluetoothHandler.readData { data ->
+                sensorData = data
+                Log.d("RawData", data)  // Log the raw data for debugging
+
+                // Parse the sensor data and trigger recomposition by updating the state
+                refreshDashboardWithBluetoothData(data)
+            }
+        } else {
+            sensorData = "Failed to connect"
+        }
+    }
+
+    // Fetch weather data from APIs
     LaunchedEffect(Unit) {
         // Check for location permissions
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -42,6 +78,7 @@ fun UserDashboard(navController: NavController) {
                             // Use the obtained location in your API requests
                             val latitude = location.latitude
                             val longitude = location.longitude
+                            val exactLocation = RetrofitClient.getVCAPI().getExactLocation(longitude, latitude)
 
                             val vcData = RetrofitClient.getVCAPI().getVCData(latitude, longitude)
                             val wapiData = RetrofitClient.getVCAPI().getWeatherAPIData(latitude, longitude)
@@ -50,27 +87,29 @@ fun UserDashboard(navController: NavController) {
                             val wmData = RetrofitClient.getVCAPI().getWMData(latitude, longitude)
 
                             val weather1 = WeatherProviderData(
-                                "VCData", vcData.address, vcData.description,
+                                "VCData", exactLocation, vcData.description,
                                 vcData.temperature, vcData.feelsLike, vcData.precip, vcData.humidity, vcData.pressure
                             )
                             val weather2 = WeatherProviderData(
-                                "WeatherAPI", wapiData.address, wapiData.description,
+                                "WeatherAPI", exactLocation, wapiData.description,
                                 wapiData.temperature, wapiData.feelsLike, 0.3, 80, wapiData.pressure
                             )
                             val weather3 = WeatherProviderData(
-                                "TomorrowIO", tioData.address, tioData.description,
+                                "TomorrowIO", exactLocation, tioData.description,
                                 tioData.temperature, tioData.feelsLike, tioData.precip, tioData.humidity, tioData.pressure
                             )
                             val weather4 = WeatherProviderData(
-                                "WeatherBit", wbData.address, wbData.description,
+                                "WeatherBit", exactLocation, wbData.description,
                                 wbData.temperature, wbData.feelsLike, wbData.precip, wbData.humidity, wbData.pressure
                             )
                             val weather5 = WeatherProviderData(
-                                "WeatherMap", wmData.address, wmData.description,
+                                "WeatherMap", exactLocation, wmData.description,
                                 wmData.temperature, wmData.feelsLike, wmData.precip, wmData.humidity, wmData.pressure
                             )
 
+                            // Update weatherDataList with API data
                             weatherDataList = listOf(weather1, weather2, weather3, weather4, weather5)
+
                         } catch (e: Exception) {
                             Toast.makeText(context, "Failed to load weather data: ${e.message}", Toast.LENGTH_LONG).show()
                         }
@@ -86,5 +125,10 @@ fun UserDashboard(navController: NavController) {
         }
     }
 
-    WeatherDashboard(weatherList = weatherDataList)
+    // Trigger a re-render when weatherDataList changes
+    LaunchedEffect(weatherDataList) {
+        // You can log or do something here if needed when weatherDataList changes
+    }
+
+    WeatherDashboard(weatherList = weatherDataList, navController = navController, bluetoothHandler = bluetoothHandler,email = email)
 }

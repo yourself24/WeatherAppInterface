@@ -153,7 +153,7 @@ fun LoginScreen(navController: NavController) {
                                 }
                                 else{
                                     Toast.makeText(context, "Login successful!", Toast.LENGTH_LONG).show()
-                                    navController.navigate("user_dashboard")
+                                    navController.navigate("user_dashboard/${email.text}")
                                 }
                             }
 

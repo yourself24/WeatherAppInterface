@@ -79,6 +79,11 @@ dependencies {
     implementation (libs.accompanist.pager)
     implementation (libs.accompanist.pager.indicators)
     implementation (libs.play.services.location)
+   // MPAndroidChart for underlying charting
+    // Y-Chart for Compos
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation (libs.rxandroidble)
+
 
 
 

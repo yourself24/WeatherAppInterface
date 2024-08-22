@@ -1,5 +1,6 @@
 package com.example.myapplication.authentication
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -32,6 +33,7 @@ fun checkInternetConnection(context: Context): Boolean {
     val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
     return networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
+@SuppressLint("InlinedApi")
 @Composable
 fun WelcomeScreen(navController: NavController){
  val context = LocalContext.current
@@ -67,6 +69,7 @@ fun WelcomeScreen(navController: NavController){
                 onClick = {
                     // Ask for location permission for online mode
                     permissionsRequestor.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+
                 },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
             ) {
@@ -76,7 +79,7 @@ fun WelcomeScreen(navController: NavController){
 
         Button(
             onClick = {
-                navController.navigate("register_screen") // Navigate to offline mode
+                navController.navigate("arduino_data") // Navigate to offline mode
             },
             modifier = Modifier.fillMaxWidth()
         ) {

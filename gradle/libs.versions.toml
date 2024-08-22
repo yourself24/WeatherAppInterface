@@ -2,6 +2,8 @@
 accompanistGlide = "0.28.0"
 accompanistPager = "0.23.1"
 agp = "8.5.0"
+charts = "0.2.4"
+chartsCompose = "<version>"
 coilCompose = "2.2.2"
 foundation = "1.6.0"
 kotlin = "1.9.0"
@@ -12,11 +14,15 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.04.01"
+mpandroidchart = "v3.1.0"
 navVersion = "2.7.7"
 okhttp = "4.12.0"
 playServicesLocation = "21.3.0"
 retrofit = "2.11.0"
 gson = "2.11.0"
+rxandroidble = "1.11.1"
+ychartCompose = "<latest_version>"
+ychartComposeVersion = "2.1.0"
 
 
 
@@ -27,6 +33,8 @@ accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pa
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navVersion" }
+charts = { module = "com.github.tehras:charts", version.ref = "charts" }
+charts-compose = { module = "com.github.tehras.charts:charts-compose", version.ref = "chartsCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -42,10 +50,14 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gson" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+rxandroidble = { module = "com.polidea.rxandroidble2:rxandroidble", version.ref = "rxandroidble" }
+ychart-compose = { module = "com.github.ychart:ychart-compose", version.ref = "ychartCompose" }
+ychart-compose-v210 = { module = "com.github.ychart:ychart-compose", version.ref = "ychartComposeVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -32,5 +32,10 @@ interface ApiService {
      @POST("api/users/forgot-password/{email}")
      suspend fun forgotPassword(@Path("email")email: String)
 
+     @POST("api/users/logout")
+     suspend fun logOut():String
+     @POST("api/users/delete/{id}")
+     suspend fun deleteUser(@Path("id") id: Long)
+
     // Define other API endpoints here
 }

@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
 
-    private static final String BASE_URL = "http://192.168.1.208:8080/"; // Replace with your server's IP and port
+    private static final String BASE_URL = "http://ec2-13-60-214-97.eu-north-1.compute.amazonaws.com:8080/"; // Replace with your server's IP and port
 
     private static Retrofit retrofit = null;
 
