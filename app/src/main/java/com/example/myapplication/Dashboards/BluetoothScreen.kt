@@ -81,13 +81,6 @@ fun YourBluetoothScreen(navController: NavController) {
     }
 }
 
-data class SensorData(
-    val humidity: String,
-    val temperature1: String,
-    val temperature2: String,
-    val pressure: String
-)
-
 fun parseSensorData(data: String): WeatherProviderData {
     val humidityPattern = "Humidity:".toRegex()
     val temperature1Pattern = "Temperature1:".toRegex()

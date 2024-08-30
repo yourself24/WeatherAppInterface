@@ -33,15 +33,6 @@ class BluetoothHandler(private val context: Context, private val deviceAddress: 
             false
         }
     }
-    fun refreshConnection(){
-        if(btSocket.isConnected){
-            try {
-                btSocket.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     fun readData(onDataReceived: (String) -> Unit) {
         val buffer = ByteArray(256)
@@ -54,24 +45,23 @@ class BluetoothHandler(private val context: Context, private val deviceAddress: 
                     bytes = inputStream.read(buffer)
                     val data = String(buffer, 0, bytes)
 
-                    // Accumulate the received data
                     completeData += data
 
-                    // Check if we have received a complete message
+
                     val startIndex = completeData.indexOf("<DATA>")
                     val endIndex = completeData.indexOf("</DATA>")
 
                     if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
-                        // Extract the full message
+
                         val fullMessage = completeData.substring(startIndex + "<DATA>".length, endIndex)
 
-                        // Clear the completeData buffer up to the end of the current message
+
                         completeData = completeData.substring(endIndex + "</DATA>".length)
 
-                        // Pass the complete message to the callback
+
                         onDataReceived(fullMessage)
 
-                        // Optionally write the full message to a file
+
                         writeToFile(fullMessage)
                     }
                 } catch (e: Exception) {
@@ -80,21 +70,6 @@ class BluetoothHandler(private val context: Context, private val deviceAddress: 
                 }
             }
         }.start()
-    }
-    fun copyFileToExternalStorage(context: Context, fileName: String) {
-        val internalFile = File(context.filesDir, fileName)
-        val externalFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
-
-        try {
-            FileInputStream(internalFile).use { input ->
-                FileOutputStream(externalFile).use { output ->
-                    input.copyTo(output)
-                }
-            }
-            println("File copied to: ${externalFile.absolutePath}")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
     private fun writeToFile(data: String) {
         val fileName = "bluetooth_data1.txt"

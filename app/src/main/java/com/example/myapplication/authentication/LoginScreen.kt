@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
@@ -31,14 +32,15 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
-
 @Composable
 fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    // State to control the visibility of the Forgot Password Dialog
+    var showForgotPasswordDialog by remember { mutableStateOf(false) }
 
     // Animation states
     val animatedVisibilityState = remember { mutableStateOf(false) }
@@ -180,7 +182,7 @@ fun LoginScreen(navController: NavController) {
             Text("Login")
         }
         TextButton(
-            onClick = { navController.navigate("register_screen") },
+            onClick = { showForgotPasswordDialog = true }, // Show the Forgot Password Dialog
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
             Text(
@@ -204,6 +206,72 @@ fun LoginScreen(navController: NavController) {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
+        }
+    }
+
+    // Forgot Password Dialog
+    if (showForgotPasswordDialog) {
+        ForgotPasswordDialog(
+            onDismiss = { showForgotPasswordDialog = false },
+            onReset = { enteredEmail ->
+                scope.launch {
+                    try {
+                        RetrofitClient.getApiService().forgotPassword(enteredEmail)
+                        Toast.makeText(context, "Password reset link sent to $enteredEmail", Toast.LENGTH_LONG).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Failed to send reset link: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                    showForgotPasswordDialog = false
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun ForgotPasswordDialog(onDismiss: () -> Unit, onReset: (String) -> Unit) {
+    var email by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Forgot Password",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                TextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Enter your email") },
+                    placeholder = { Text("Email") },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Dismiss")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = { onReset(email) }) {
+                        Text("Reset")
+                    }
+                }
+            }
         }
     }
 }

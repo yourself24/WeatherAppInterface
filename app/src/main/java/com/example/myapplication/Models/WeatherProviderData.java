@@ -57,6 +57,20 @@ public class WeatherProviderData {
         this.feelsLike = feelsLike;
     }
 
+    @Override
+    public String toString() {
+        return "WeatherProviderData{" +
+                "providerName='" + providerName + '\'' +
+                ", address='" + address + '\'' +
+                ", description='" + description + '\'' +
+                ", temperature=" + temperature +
+                ", feelsLike=" + feelsLike +
+                ", precip=" + precip +
+                ", humidity=" + humidity +
+                ", pressure=" + pressure +
+                '}';
+    }
+
     public double getPrecip() {
         return precip;
     }

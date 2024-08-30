@@ -84,6 +84,15 @@ fun WeatherCardModel(weatherData: WeatherProviderData) {
                     ),
                     modifier = Modifier.padding(top = 8.dp)
                 )
+                Text(
+                    text = weatherData.providerName,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = White.copy(alpha = 0.8f)
+                    ),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             // Bottom section with weather details
@@ -200,7 +209,7 @@ fun WeatherIcon(weatherData: WeatherProviderData): Int {
         weatherData.precip > 0.0 && weatherData.humidity > 70 && !isDayTime-> R.drawable.nightrain// Replace with your rainy icon resource
         weatherData.humidity < 70 && weatherData.precip < 0.1 && isDayTime -> R.drawable.sungood
         weatherData.humidity < 70 && weatherData.precip < 0.1 && !isDayTime-> R.drawable.nightclear// Replace with your sunny icon resource
-        else -> R.drawable.sunny // Replace with your default icon resource
+        else -> R.drawable.sungood // Replace with your default icon resource
     }
 }
 

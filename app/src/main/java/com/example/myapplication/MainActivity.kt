@@ -87,7 +87,6 @@ fun MyAppNavigation() {
         composable("admin_dashboard"){AdminDashboard(navController)}
 
         composable("arduino_data"){ YourBluetoothScreen(navController) }
-        composable("sensor_dashboard"){ SensorDashboard(navController) }
         composable(route = "home_screen/{email}",
             arguments = listOf(navArgument("email"){type = NavType.StringType})){
             backStackEntry -> val email = backStackEntry.arguments?.getString("email")
