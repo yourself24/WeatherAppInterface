@@ -26,6 +26,7 @@ fun PodiumItem(rank: Int, providerScore: ProviderScore) {
         else -> null
     }
 
+    //so it's image-> provider name
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,6 +50,7 @@ fun PodiumItem(rank: Int, providerScore: ProviderScore) {
                 fontFamily = MaterialTheme.typography.body1.fontFamily
             )
         }
+        //display the categories that the provider won at
         Column(horizontalAlignment = Alignment.End) {
             Text(
                 text = "${providerScore.points} Points",
@@ -71,6 +73,8 @@ data class ProviderScore(
     var bestAt: MutableList<String> = mutableListOf()
 )
 
+//to calcuate the score simply take the ones closest to the Arduino's vallues:
+// i.e. smallest abs(provider-arduino)
 fun calculateProviderScores(weatherDataList: List<WeatherProviderData>): List<ProviderScore> {
     val arduinoData = weatherDataList.find { it.providerName == "Arduino" }
     val otherProviders = weatherDataList.filter { it.providerName != "Arduino" }
@@ -79,6 +83,7 @@ fun calculateProviderScores(weatherDataList: List<WeatherProviderData>): List<Pr
 
     val providerScores = otherProviders.map { ProviderScore(it.providerName) }.toMutableList()
 
+    //points are assgined to the ones with the smallest overall difference per category.
     fun assignPointBasedOnSmallestDifference(categoryName: String, arduinoValue: Double, selector: (WeatherProviderData) -> Double) {
         var smallestDifference = Double.MAX_VALUE
         var bestProvider: ProviderScore? = null
