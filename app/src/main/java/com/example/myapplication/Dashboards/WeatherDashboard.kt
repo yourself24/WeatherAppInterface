@@ -56,6 +56,8 @@ fun WeatherDashboard(
             LocalDateTime.parse(json.asString, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         })
         .create()
+//scaffold for integrating a top bar that will be visible throughout all other Views related to this
+//
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -72,6 +74,7 @@ fun WeatherDashboard(
                     }
                 },
                 actions = {
+                    //logout button
                     IconButton(onClick = {
                         scope.launch {
                             try {
@@ -101,13 +104,15 @@ fun WeatherDashboard(
                             tint = Color.Unspecified
                         )
                     }
+                    //save button
                     IconButton(onClick = {
                         scope.launch {
                             try {
                                 val userId= RetrofitClient.getApiService().getUserByEmail(email).id
                                 val currDate:LocalDateTime = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0)
                                 val currDateString = currDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-
+                            // go through each of the weather list elements to create a WEatherDataClass(object for saving in DB)
+                            //use the current date and time for storing them in the database
                                 weatherList.forEach { weatherData ->
                                     val savedData = WeatherDataClass()
                                         .apply {
@@ -157,6 +162,8 @@ fun WeatherDashboard(
                 backgroundColor = MaterialTheme.colorScheme.primary
             )
         },
+        //drawer for showing navigations buttons to all other views that user
+        //can navigate to
         drawerContent = {
             DrawerContent(
                 selectedView = selectedView,
@@ -173,6 +180,7 @@ fun WeatherDashboard(
                 .padding(it)  // This is necessary to avoid overlapping the top bar
         ) {
             when (selectedView) {
+                //main view, displays a pager with all the cards created using the data of the providers in the list 
                 "Weather View" -> {
                     HorizontalPager(
                         count = weatherList.size,
@@ -188,15 +196,17 @@ fun WeatherDashboard(
                         inactiveColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f)
                     )
                 }
+                //graph view call
 
                 "Graph View" -> {
 
                     GraphView(weatherDataList = weatherList)
                 }
+                //dashboard to display saved data with or w/o filters
                 "Personal Weather"->{
                     UserWeatherView(email)
                 }
-
+                //user edit view
                 "User View" -> {
 
                     UserEditView(navController = navController, email = email)
@@ -211,7 +221,7 @@ fun WeatherDashboard(
         }
     }
 }
-
+//drawer items with their associated names and icons 
 @Composable
 fun DrawerContent(selectedView: String, onViewSelected: (String) -> Unit) {
     Column(modifier = Modifier.padding(16.dp)) {
@@ -261,6 +271,8 @@ fun DrawerItem(
     }
 }
 
+
+//using until all views are defined to test how icons and text looks like
 @Composable
 fun PlaceholderView(viewName: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
