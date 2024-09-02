@@ -47,9 +47,12 @@ fun UserWeatherView(email: String) {
     LaunchedEffect(email) {
         scope.launch {
             try {
+
+                //gather all saved weather data by user
                 val userId = RetrofitClient.getApiService().getUserByEmail(email).id
                 val fetchedDataList = RetrofitClient.getVCAPI().getDataByUID(userId)
                 fetchedDataList.forEach { elem ->
+                    //go through each and construct a WEatherProviderData object that we can display
                     val weatherData = WeatherProviderData().apply {
                         providerName = elem.provider
                         address = elem.address
@@ -60,6 +63,7 @@ fun UserWeatherView(email: String) {
                         humidity = elem.humidity
                         pressure = elem.pressure
                     }
+                    // parse the date so that we can use it for filtering later
                     val dateTime = LocalDateTime.parse(elem.date, dateFormatter)
                     dataList.add(dateTime to weatherData)
                 }
@@ -74,6 +78,7 @@ fun UserWeatherView(email: String) {
         }
     }
 
+    //get all dates in a list and all hours for that specific date in another list
     val uniqueDates = dataList.map { it.first.toLocalDate() }.distinct()
     val uniqueHours = selectedDate?.let {
         dataList.filter { it.first.toLocalDate() == selectedDate }
@@ -91,19 +96,20 @@ fun UserWeatherView(email: String) {
             selectedDate = newDate
             selectedHour = null
         }
-
+    //allow user to select hours only after selecting their date
         if (selectedDate != null) {
             Spacer(modifier = Modifier.height(8.dp))
             HourDropdownSelector(hours = uniqueHours, selectedHour = selectedHour) { newHour ->
                 selectedHour = newHour
             }
         }
-
+        //display a loading indicator while data is loading
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         } else {
+            //list of filtered data for specific hour and day)
             val filteredList = dataList.filter {
                 (selectedDate == null || it.first.toLocalDate() == selectedDate) &&
                         (selectedHour == null || it.first.toLocalTime().withMinute(0).withSecond(0).withNano(0) == selectedHour)
@@ -115,6 +121,7 @@ fun UserWeatherView(email: String) {
                     state = pagerState,
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
+                    //display a weathercardmodel for each element in the list in a pager that user can swipe through 
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -150,6 +157,7 @@ fun DateDropdownSelector(
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(selectedDate?.toString() ?: "Select a date") }
 
+    
     Box(
         modifier = Modifier
             .fillMaxWidth()
