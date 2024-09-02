@@ -20,6 +20,7 @@ class BluetoothHandler(private val context: Context, private val deviceAddress: 
 
     private val hc05UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
+    //try to establish a connection via MAC address, ONLY if device is paired
     @SuppressLint("MissingPermission")
     fun connect(): Boolean {
         return try {
@@ -34,6 +35,8 @@ class BluetoothHandler(private val context: Context, private val deviceAddress: 
         }
     }
 
+    // read the data in between the start and finish strings for the message. implemented because the sensor readings were sometimes sent
+    //in multiple messages which caused reading issues.
     fun readData(onDataReceived: (String) -> Unit) {
         val buffer = ByteArray(256)
         var bytes: Int
@@ -71,6 +74,8 @@ class BluetoothHandler(private val context: Context, private val deviceAddress: 
             }
         }.start()
     }
+
+    //to be removed
     private fun writeToFile(data: String) {
         val fileName = "bluetooth_data1.txt"
         val file = File(context.filesDir, fileName)
@@ -83,7 +88,7 @@ class BluetoothHandler(private val context: Context, private val deviceAddress: 
             e.printStackTrace()
         }
     }
-
+//close connection
     fun closeConnection() {
         try {
             btSocket.close()
