@@ -24,7 +24,7 @@ fun YourBluetoothScreen(navController: NavController) {
     val fusedLocationClient: FusedLocationProviderClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
     }
-    val deviceAddress = "00:24:01:00:0A:DC" // Replace with your device address
+    val deviceAddress = "00:24:01:00:0A:DC" // Replace with MAC address accordingly, from mobile device settings
 
     // Initialize BluetoothHandler
     val bluetoothHandler = remember { BluetoothHandler(context, deviceAddress) }
@@ -50,9 +50,9 @@ fun YourBluetoothScreen(navController: NavController) {
     }
     DisposableEffect(Unit) {
         onDispose {
-            // Logic to execute when leaving this screen
-            bluetoothHandler.closeConnection() // Ensure the connection is closed
-            // Add any additional cleanup or logic here
+            // Close connection when leaving screen as to allow user to use the offline screen after logging out
+            bluetoothHandler.closeConnection() 
+          
         }
     }
 
@@ -80,6 +80,8 @@ fun YourBluetoothScreen(navController: NavController) {
         }
     }
 }
+//parse data received from arduino via the pattern used in the code and store it to form a WeatherProviderData object and display it
+// 
 
 fun parseSensorData(data: String): WeatherProviderData {
     val humidityPattern = "Humidity:".toRegex()
