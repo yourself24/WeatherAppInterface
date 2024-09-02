@@ -52,13 +52,13 @@ fun AdminDashboard(navController: NavController) {
     ) {
         // Background Image
         Image(
-            painter = painterResource(id = R.drawable.admin), // Replace with your image resource ID
+            painter = painterResource(id = R.drawable.admin), // Background image for the dashboard
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize()
         )
 
-        // Content Overlay
+        // Column contaning UserList elements
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -131,7 +131,7 @@ fun AdminDashboard(navController: NavController) {
         }
     }
 }
-
+//Lazy column in case we need to add too many users and admin will be able to scroll up/down
 @Composable
 fun UserList(users: List<User>, onUserSelected: (User) -> Unit) {
     LazyColumn {
@@ -151,7 +151,7 @@ fun UserList(users: List<User>, onUserSelected: (User) -> Unit) {
         }
     }
 }
-
+//dialog with text fields for user creation
 @Composable
 fun CreateUserDialog(onDismiss: () -> Unit, onCreate: () -> Unit) {
     var name by remember { mutableStateOf("") }
@@ -213,6 +213,7 @@ fun CreateUserDialog(onDismiss: () -> Unit, onCreate: () -> Unit) {
         }
     }
 }
+//dialog  for Editing users, similar to the create user one
 
 @Composable
 fun UserEditDialog(user: User, onDismiss: () -> Unit, onSave: (User) -> Unit) {
