@@ -9,7 +9,7 @@ import retrofit2.http.Path
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-
+//weather and location requests
 interface VCApIService {
 
     @GET("/api/weather/VCdata/current/{latitude}/{longitude}")
