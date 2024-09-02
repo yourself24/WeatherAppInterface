@@ -26,12 +26,12 @@ fun UserDashboard(navController: NavController,email:String) {
     val fusedLocationClient: FusedLocationProviderClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
     }
-    val deviceAddress = "00:24:01:00:0A:DC" // Replace with your device address
+    val deviceAddress = "00:24:01:00:0A:DC" // Replace with correct MAC address
 
     var userLocation by remember { mutableStateOf<Location?>(null) }
     val bluetoothHandler = remember { BluetoothHandler(context, deviceAddress) }
     Log.d("Email",email)
-    // Function to refresh the dashboard with new data
+    // Function to refresh the dashboard with new data every time a new reading is received from the Arduino
     fun refreshDashboardWithBluetoothData(data: String) {
         val parsedSensorData = parseSensorData(data)
         scope.launch {
@@ -54,7 +54,7 @@ fun UserDashboard(navController: NavController,email:String) {
                 sensorData = data
                 Log.d("RawData", data)  // Log the raw data for debugging
 
-                // Parse the sensor data and trigger recomposition by updating the state
+                // Parse the sensor data and trigger recomposition of UI by updating the state
                 refreshDashboardWithBluetoothData(data)
             }
         } else {
@@ -62,7 +62,7 @@ fun UserDashboard(navController: NavController,email:String) {
         }
     }
 
-    // Fetch weather data from APIs
+    // Fetch weather data from APIs via Retrofit
     LaunchedEffect(Unit) {
         // Check for location permissions
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -75,7 +75,7 @@ fun UserDashboard(navController: NavController,email:String) {
 
                     scope.launch {
                         try {
-                            // Use the obtained location in your API requests
+                            // Use the obtained location for reverse geolocation via MapBox
                             val latitude = location.latitude
                             val longitude = location.longitude
                             val exactLocation = RetrofitClient.getVCAPI().getExactLocation(longitude, latitude)
@@ -107,7 +107,7 @@ fun UserDashboard(navController: NavController,email:String) {
                                 wmData.temperature, wmData.feelsLike, wmData.precip, wmData.humidity, wmData.pressure
                             )
 
-                            // Update weatherDataList with API data
+                            // Create the weather list to be displayed via the cards
                             weatherDataList = listOf(weather1, weather2, weather3, weather4, weather5)
 
                         } catch (e: Exception) {
@@ -127,8 +127,8 @@ fun UserDashboard(navController: NavController,email:String) {
 
     // Trigger a re-render when weatherDataList changes
     LaunchedEffect(weatherDataList) {
-        // You can log or do something here if needed when weatherDataList changes
+    
     }
-
+    //send list of provider data to the dashboar
     WeatherDashboard(weatherList = weatherDataList, navController = navController, bluetoothHandler = bluetoothHandler,email = email)
 }
