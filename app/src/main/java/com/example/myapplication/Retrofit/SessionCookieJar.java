@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//save and load cookies on requests to load session ID from login and use it on any other request for user
 public class SessionCookieJar implements CookieJar {
     private final Map<String, List<Cookie>> cookieStore = new HashMap<>();
 
